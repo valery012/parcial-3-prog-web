@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comentarios {
+  id_comentario    Int       @id @default(autoincrement())
+  id_resena        Int?
+  id_usuario       Int?
+  comentario       String?   @db.Text
+  fecha_comentario DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([id_resena], map: "id_resena")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model generos {
+  id_genero     Int     @id @default(autoincrement())
+  nombre_genero String  @db.VarChar(100)
+  descripcion   String? @db.Text
+}
+
+model listas_de_seguimiento {
+  id_lista     Int     @id @default(autoincrement())
+  id_usuario   Int?
+  nombre_lista String  @db.VarChar(100)
+  descripcion  String? @db.Text
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model peliculas {
+  id_pelicula           Int       @id @default(autoincrement())
+  titulo                String    @db.VarChar(255)
+  sinopsis              String?   @db.Text
+  duracion              Int?
+  fecha_estreno         DateTime? @db.Date
+  director              String?   @db.VarChar(100)
+  pais_origen           String?   @db.VarChar(100)
+  calificacion_promedio Decimal?  @default(0.00) @db.Decimal(3, 2)
+  id_genero             Int?
+
+  @@index([id_genero], map: "id_genero")
+}
+
+model peliculas_genero {
+  id_pelicula Int
+  id_genero   Int
+
+  @@id([id_pelicula, id_genero])
+  @@index([id_genero], map: "id_genero")
+}
+
+model peliculas_lista {
+  id_lista    Int
+  id_pelicula Int
+
+  @@id([id_lista, id_pelicula])
+  @@index([id_pelicula], map: "id_pelicula")
+}
+
+model recomendaciones {
+  id_recomendacion      Int     @id @default(autoincrement())
+  id_usuario            Int?
+  id_pelicula           Int?
+  id_serie              Int?
+  mensaje_recomendacion String? @db.Text
+
+  @@index([id_pelicula], map: "id_pelicula")
+  @@index([id_serie], map: "id_serie")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model resenas {
+  id_resena    Int       @id @default(autoincrement())
+  id_usuario   Int?
+  id_pelicula  Int?
+  id_serie     Int?
+  comentario   String?   @db.Text
+  calificacion Int?
+  fecha_resena DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([id_pelicula], map: "id_pelicula")
+  @@index([id_serie], map: "id_serie")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model series {
+  id_serie              Int       @id @default(autoincrement())
+  titulo                String    @db.VarChar(255)
+  sinopsis              String?   @db.Text
+  num_temporadas        Int?
+  fecha_estreno         DateTime? @db.Date
+  director              String?   @db.VarChar(100)
+  pais_origen           String?   @db.VarChar(100)
+  calificacion_promedio Decimal?  @default(0.00) @db.Decimal(3, 2)
+  id_genero             Int?
+
+  @@index([id_genero], map: "id_genero")
+}
+
+model series_lista {
+  id_lista Int
+  id_serie Int
+
+  @@id([id_lista, id_serie])
+  @@index([id_serie], map: "id_serie")
+}
+
+model usuarios {
+  id_usuario     Int          @id @default(autoincrement())
+  nombre         String       @db.VarChar(100)
+  email          String       @unique(map: "email") @db.VarChar(100)
+  contrase_a     String       @map("contraseña") @db.VarChar(255)
+  fecha_registro DateTime?    @default(now()) @db.DateTime(0)
+  rol            usuarios_rol
+}
+
+enum usuarios_rol {
+  admin
+  usuario_normal @map("usuario normal")
+}
